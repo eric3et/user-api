@@ -1,0 +1,34 @@
+package handlers
+
+import (
+	"encoding/json"
+	"net/http"
+	"strconv"
+
+	"github.com/eric3et/go_tutorial_1/api"
+	"github.com/eric3et/go_tutorial_1/internal/tools"
+	"github.com/go-chi/chi/v5"
+)
+
+func GetUser(w http.ResponseWriter, r *http.Request) {
+
+	// Parse parameters from the URL query string
+	id_s := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(id_s)
+	if err != nil {
+		api.InternalErrorHandler(w, err)
+		return
+	}
+
+	user, err := tools.DBGetUser(id)
+	if user == nil {
+		api.NotFoundErrorHandler(w, err)
+		return
+	}
+
+	//Write Response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
+}
